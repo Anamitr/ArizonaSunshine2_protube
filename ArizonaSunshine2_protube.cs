@@ -103,15 +103,15 @@ namespace ArizonaSunshine2_protube
         private async void InitializeProTube()
         {
             MelonLogger.Msg("Initializing ProTube gear...");
-            await ForceTubeVRInterface.InitAsync(true);
+            await ForceTubeVRInterface.InitAsync(pistolsFirst: false); 
             MelonLogger.Msg("Listing devices and channels:");
             MelonLogger.Msg("ListConnectedForceTube: " + ForceTubeVRInterface.ListConnectedForceTube());
             MelonLogger.Msg("ListChannels: " + ForceTubeVRInterface.ListChannels());
             Thread.Sleep(10000);
-            dualWieldSort();
+            //dualWieldSort();
         }
 
-        enum WeaponType
+        public enum WeaponType
         {
             Pistol, Revolver, Tommy, Rifle, Shotgun1Hand, Shotgun2Hand, Undefined
         }
@@ -137,34 +137,34 @@ namespace ArizonaSunshine2_protube
 
             if (weaponType == WeaponType.Rifle)
             {
-                ForceTubeVRInterface.Shoot(255, 125, 0.1f, ForceTubeVRChannel.pistol1);
+                ForceTubeVRInterface.Shoot(255, 125, 0.1f, ForceTubeVRChannel.rifleButt);
                 ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol2);
             }
             else if (weaponType == WeaponType.Tommy)
             {
-                ForceTubeVRInterface.Shoot(135, 100, 0.1f, ForceTubeVRChannel.pistol1);
-                ForceTubeVRInterface.Kick(180, ForceTubeVRChannel.pistol2);
+                ForceTubeVRInterface.Shoot(135, 100, 0.1f, ForceTubeVRChannel.rifleButt);
+                ForceTubeVRInterface.Kick(180, ForceTubeVRChannel.rifleBolt);
             }
             else if (weaponType == WeaponType.Pistol)
             {
-                ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.pistol1);
+                ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.rifleButt);
             }
             else if (weaponType == WeaponType.Revolver)
             {
-                ForceTubeVRInterface.Kick(230, ForceTubeVRChannel.pistol1);
+                ForceTubeVRInterface.Kick(230, ForceTubeVRChannel.rifleButt);
             }
             else if (weaponType == WeaponType.Shotgun1Hand)
             {
-                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol1);
+                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleButt);
             }
             else if (weaponType == WeaponType.Shotgun2Hand)
             {
-                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol1);
-                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol2);
+                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleButt);
+                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleBolt);
             }
             else
             {
-                ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.pistol1);
+                ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.rifleButt);
             }
             return;
         }
