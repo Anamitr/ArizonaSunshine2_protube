@@ -113,10 +113,12 @@ namespace ArizonaSunshine2_protube
 
         public enum WeaponType
         {
-            Pistol, Revolver, Tommy, Rifle, Shotgun1Hand, Shotgun2Hand, Undefined
+            Pistol, Revolver, Tommy, Rifle, Shotgun1Hand, Shotgun2Hand, Undefined,
+                TommyUpgraded // I saw this one at the end of chapter 7, but it dissapeared (bug)
         }
 
         public static void shootProtube(WeaponType weaponType, bool isRightHand)
+        // My gun get's registered as rifleButt, stock as rifleBolt
         {
             MelonLogger.Msg("shootProtube");
             MelonLogger.Msg(weaponType);
@@ -138,7 +140,7 @@ namespace ArizonaSunshine2_protube
             if (weaponType == WeaponType.Rifle)
             {
                 ForceTubeVRInterface.Shoot(255, 125, 0.1f, ForceTubeVRChannel.rifleButt);
-                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol2);
+                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleBolt);
             }
             else if (weaponType == WeaponType.Tommy)
             {
