@@ -41,8 +41,38 @@ namespace ArizonaSunshine2_protube
         public static void dualWieldSort()
         {
             ForceTubeVRInterface.FTChannelFile myChannels = JsonConvert.DeserializeObject<ForceTubeVRInterface.FTChannelFile>(ForceTubeVRInterface.ListChannels());
+            MelonLogger.Msg($"myChannels: {myChannels}");
+            if (myChannels == null)
+            {
+                MelonLogger.LogWarning("myChannels is null!");
+            }
+            if (myChannels.channels == null)
+            {
+                MelonLogger.LogWarning("myChannels.channels is null!");
+            }
+            if (myChannels.channels.pistol1 == null)
+            {
+                MelonLogger.LogWarning("myChannels.channels.pistol1 is null!");
+            }
+            MelonLogger.Msg($"myChannels.channels: {myChannels.channels}");
+
             var pistol1 = myChannels.channels.pistol1;
+            MelonLogger.Msg("Bazinga 2");
             var pistol2 = myChannels.channels.pistol2;
+            MelonLogger.Msg("Bazinga 3");
+            MelonLogger.Msg($"{myChannels.channels.ToString()}");
+            MelonLogger.Msg("rifleButt");
+            MelonLogger.Msg($"{myChannels.channels.rifleButt.Count}");
+            MelonLogger.Msg("rifleBolt");
+            MelonLogger.Msg($"{myChannels.channels.rifleBolt.Count}");
+            MelonLogger.Msg("pistol1");
+            MelonLogger.Msg($"{myChannels.channels.pistol1.Count}");
+            MelonLogger.Msg("pistol2");
+            MelonLogger.Msg($"{myChannels.channels.pistol2.Count}");
+            MelonLogger.Msg("other");
+            MelonLogger.Msg($"{myChannels.channels.other.Count}");
+            MelonLogger.Msg("vest");
+            MelonLogger.Msg($"{myChannels.channels.vest.Count}");
             if ((pistol1.Count > 0) && (pistol2.Count > 0))
             {
                 dualWield = true;
@@ -74,31 +104,69 @@ namespace ArizonaSunshine2_protube
         {
             MelonLogger.Msg("Initializing ProTube gear...");
             await ForceTubeVRInterface.InitAsync(true);
+            MelonLogger.Msg("Listing devices and channels:");
+            MelonLogger.Msg("ListConnectedForceTube: " + ForceTubeVRInterface.ListConnectedForceTube());
+            MelonLogger.Msg("ListChannels: " + ForceTubeVRInterface.ListChannels());
             Thread.Sleep(10000);
             dualWieldSort();
         }
-        public static void shootProtube(string weaponType, bool isRightHand)
+
+        enum WeaponType
         {
-            ForceTubeVRChannel channel = ForceTubeVRChannel.pistol1;
-            if (isRightHand)
+            Pistol, Revolver, Tommy, Rifle, Shotgun1Hand, Shotgun2Hand, Undefined
+        }
+
+        public static void shootProtube(WeaponType weaponType, bool isRightHand)
+        {
+            MelonLogger.Msg("shootProtube");
+            MelonLogger.Msg(weaponType);
+            //ForceTubeVRChannel channel = ForceTubeVRChannel.pistol1;
+            //if (isRightHand)
+            //{
+            //    channel = (leftHanded && !dualWield) ? ForceTubeVRChannel.pistol2 : ForceTubeVRChannel.pistol1;
+            //}
+            //else
+            //{
+            //    channel = (leftHanded && !dualWield) ? ForceTubeVRChannel.pistol1 : ForceTubeVRChannel.pistol2;
+            //}
+            if (!isRightHand)
             {
-                channel = (leftHanded && !dualWield) ? ForceTubeVRChannel.pistol2 : ForceTubeVRChannel.pistol1;
+                MelonLogger.Warning("Firing with left hand is not handled.");
+                return;
+            }
+
+            if (weaponType == WeaponType.Rifle)
+            {
+                ForceTubeVRInterface.Shoot(255, 125, 0.1f, ForceTubeVRChannel.pistol1);
+                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol2);
+            }
+            else if (weaponType == WeaponType.Tommy)
+            {
+                ForceTubeVRInterface.Shoot(135, 100, 0.1f, ForceTubeVRChannel.pistol1);
+                ForceTubeVRInterface.Kick(180, ForceTubeVRChannel.pistol2);
+            }
+            else if (weaponType == WeaponType.Pistol)
+            {
+                ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.pistol1);
+            }
+            else if (weaponType == WeaponType.Revolver)
+            {
+                ForceTubeVRInterface.Kick(230, ForceTubeVRChannel.pistol1);
+            }
+            else if (weaponType == WeaponType.Shotgun1Hand)
+            {
+                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol1);
+            }
+            else if (weaponType == WeaponType.Shotgun2Hand)
+            {
+                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol1);
+                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.pistol2);
             }
             else
             {
-                channel = (leftHanded && !dualWield) ? ForceTubeVRChannel.pistol1 : ForceTubeVRChannel.pistol2;
+                ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.pistol1);
             }
-
-            if (weaponType == "Shotgun")
-            {
-                ForceTubeVRInterface.Shoot(255, 125, 20f, channel);
-                return;
-            }
-            if (weaponType == "Pistol")
-            {
-                ForceTubeVRInterface.Kick(210, channel);
-                return;
-            }
+            return;
         }
 
 
@@ -108,10 +176,32 @@ namespace ArizonaSunshine2_protube
             [HarmonyPostfix]
             public static void Postfix(ProjectileShootStrategyBehaviourData __instance, AZS2Hand hand)
             {
-                string weapon = "Pistol";
-                if (__instance.shootStrategy.projectilesPerBurst > 1) weapon = "Shotgun";
+                //string weapon = "Pistol";
+                //if (__instance.shootStrategy.projectilesPerBurst > 1) weapon = "Shotgun";
+                MelonLogger.Msg("fireRate: " + __instance.shootStrategy.fireRate);
+                //MelonLogger.Msg("firingMode: " + __instance.shootStrategy.firingMode);
+                //MelonLogger.Msg("onShootUpdate: " + __instance.shootStrategy.onShootUpdate);
+                MelonLogger.Msg("projectilesPerBurst: " + __instance.shootStrategy.projectilesPerBurst);
+                MelonLogger.Msg("spreadAngle: " + __instance.shootStrategy.spreadAngle);
+                MelonLogger.Msg("hasSpreadPattern: " + __instance.shootStrategy.hasSpreadPattern);
+                //__instance.shootStrategy.firingMode;
+                ////__instance.shootStrategy.fireRate;
                 bool isRightHand = (hand.IsRightHand);
-                shootProtube(weapon, isRightHand);
+
+                WeaponType weaponType = WeaponType.Undefined;
+                if (__instance.shootStrategy.fireRate == 10) weaponType = WeaponType.Rifle;
+                else if (__instance.shootStrategy.fireRate == 12) weaponType = WeaponType.Tommy;
+                else if (__instance.shootStrategy.fireRate == 30) weaponType = WeaponType.Pistol;
+                else if (__instance.shootStrategy.fireRate == 5.5f) weaponType = WeaponType.Revolver;
+                else if (__instance.shootStrategy.fireRate == 100)
+                {
+                    if (__instance.shootStrategy.spreadAngle == 5f)
+                        weaponType = WeaponType.Shotgun1Hand;
+                    else if (__instance.shootStrategy.spreadAngle == 2.75f)
+                        weaponType = WeaponType.Shotgun2Hand;
+                }
+
+                shootProtube(weaponType, isRightHand);
             }
         }
     }
