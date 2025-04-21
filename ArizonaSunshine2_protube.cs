@@ -92,11 +92,12 @@ namespace ArizonaSunshine2_protube
                 string rifleBoltID = ReadChannel("rifleBolt");
                 string rifleButtId = ReadChannel("rifleButt");
                 MelonLogger.Msg("Found and loaded configuration. Rifle bolt: " + rifleBoltID + ", Rifle butt: " + rifleButtId);
-                // Channels 2 and 3 are ForceTubeVRChannel.rifleBolt and rifleButt
+                // Channels 2 and 3 are ForceTubeVRChannel.rifleButt and rifleBoltID
+                // https://github.com/Astienth/Provolver_HalfLifeAlyx/blob/8a0d9760cd87c818cde391d87c0a743bc1e968c7/ForceTubeVRInterface.cs#L18
                 ForceTubeVRInterface.ClearChannel(2);
                 ForceTubeVRInterface.ClearChannel(3);
-                ForceTubeVRInterface.AddToChannel(2, rifleBoltID);
-                ForceTubeVRInterface.AddToChannel(3, rifleButtId);
+                ForceTubeVRInterface.AddToChannel(2, rifleButtId);
+                ForceTubeVRInterface.AddToChannel(3, rifleBoltID);
             }
         }
         private static async void InitializeProTube()
