@@ -19,11 +19,11 @@ namespace ArizonaSunshine2_protube
         }
 
         private static string devicesIDsConfigPath = Directory.GetCurrentDirectory() + "\\Mods\\rifleBoltButtDevices\\";
-        private MelonPreferences_Category config;
+        //private MelonPreferences_Category config;
 
         public override void OnApplicationStart()
         {
-            config = MelonPreferences.CreateCategory("provolver");
+            //config = MelonPreferences.CreateCategory("provolver");
             InitializeProTube();
         }
 
@@ -102,7 +102,7 @@ namespace ArizonaSunshine2_protube
         private async void InitializeProTube()
         {
             MelonLogger.Msg("Initializing ProTube gear...");
-            await ForceTubeVRInterface.InitAsync(pistolsFirst: false); 
+            await ForceTubeVRInterface.InitAsync(pistolsFirst: false);
             MelonLogger.Msg("Listing devices and channels:");
             MelonLogger.Msg("ListConnectedForceTube: " + ForceTubeVRInterface.ListConnectedForceTube());
             MelonLogger.Msg("ListChannels: " + ForceTubeVRInterface.ListChannels());
@@ -112,6 +112,9 @@ namespace ArizonaSunshine2_protube
 
 
         private static void shootProtube(WeaponType weaponType)
+        // Set reactions to my feeling, I was using weaker basic ProVolver and ForceTube (there are stronger versions),
+        // so I prefered stronger responses
+        // Only guide I found is this: https://github.com/ProTubeVR/ForceTubeVR-Unreal-Engine-Plugin?tab=readme-ov-file#weapons-settings
         {
             MelonLogger.Msg("shootProtube");
             MelonLogger.Msg(weaponType);
@@ -171,16 +174,15 @@ namespace ArizonaSunshine2_protube
                     MelonLogger.Warning("Firing with left hand is not handled.");
                     return;
                 }
-                // I found differences between weapons only in those 2 parameters
+                // I noticed differences between weapons only in those 2 parameters
                 float fireRate = __instance.shootStrategy.fireRate;
                 float spreadAngle = __instance.shootStrategy.spreadAngle;
-
                 MelonLogger.Msg("fireRate: " + fireRate);
                 MelonLogger.Msg("spreadAngle: " + spreadAngle);
-                //MelonLogger.Msg("firingMode: " + __instance.shootStrategy.firingMode);
-                //MelonLogger.Msg("onShootUpdate: " + __instance.shootStrategy.onShootUpdate);
-                MelonLogger.Msg("projectilesPerBurst: " + __instance.shootStrategy.projectilesPerBurst);
-                MelonLogger.Msg("hasSpreadPattern: " + __instance.shootStrategy.hasSpreadPattern);
+                // I didn't notice differences between any weapons in those 2
+                MelonLogger.Msg("projectilesPerBurst: " + __instance.shootStrategy.projectilesPerBurst); // Saw always 3
+                MelonLogger.Msg("hasSpreadPattern: " + __instance.shootStrategy.hasSpreadPattern); // Saw always False
+                // I didn't print those through most of the game
                 MelonLogger.Msg("burstFireCooldownDuration: " + __instance.shootStrategy.burstFireCooldownDuration);
                 MelonLogger.Msg("bulletInChamberCooldownDuration: " + __instance.shootStrategy.bulletInChamberCooldownDuration);
                 MelonLogger.Msg("maxIndividualBulletRandomizedAngle: " + __instance.shootStrategy.maxIndividualBulletRandomizedAngle);
@@ -194,7 +196,7 @@ namespace ArizonaSunshine2_protube
                         break;
 
                     case 15:
-                        // Watch out, big UZI is the same, but I was using fast firing and shotguns weapon in my left hand
+                        // Watch out, big UZI is the same, but I was using fast firing and shotgun weapons in my left hand
                         weaponType = WeaponType.M16;
                         break;
 
