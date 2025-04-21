@@ -11,34 +11,37 @@ namespace ArizonaSunshine2_protube
 {
     public class ArizonaSunshine2_protube : MelonMod
     {
-        public static string configPath = Directory.GetCurrentDirectory() + "\\Mods\\dualwield\\";
-        public static bool dualWield = false;
+        public static string devicesIDsConfigPath = Directory.GetCurrentDirectory() + "\\Mods\\rifleBoltButtDevices\\";
+        //public static bool dualWield = false;
         private MelonPreferences_Category config;
-        public static bool leftHanded = false;
+        //public static bool leftHanded = false;
 
         public override void OnApplicationStart()
         {
             config = MelonPreferences.CreateCategory("provolver");
             config.CreateEntry<bool>("leftHanded", false);
             config.SetFilePath("Mods/Provolver/Provolver_config.cfg");
-            leftHanded = bool.Parse(config.GetEntry("leftHanded").GetValueAsString());
+            //leftHanded = bool.Parse(config.GetEntry("leftHanded").GetValueAsString());
             InitializeProTube();
         }
 
         public static void saveChannel(string channelName, string proTubeName)
         {
-            string fileName = configPath + channelName + ".pro";
+            string fileName = devicesIDsConfigPath + channelName + ".pro";
             File.WriteAllText(fileName, proTubeName, Encoding.UTF8);
         }
 
         public static string readChannel(string channelName)
         {
-            string fileName = configPath + channelName + ".pro";
+            string fileName = devicesIDsConfigPath + channelName + ".pro";
             if (!File.Exists(fileName)) return "";
             return File.ReadAllText(fileName, Encoding.UTF8);
         }
 
-        public static void dualWieldSort()
+        public static void rifleBoltButtSort()
+        // For me assigning rifleBolt and rifleButt by ForceTubeVRInterface seemed random,
+        // so if when shooting pistol your stock respond then swap contents of "Arizona Sunshine 2\Mods\rifleBoltButtDevices" .pro files
+        // Then it should be good as long as the same devices are used
         {
             ForceTubeVRInterface.FTChannelFile myChannels = JsonConvert.DeserializeObject<ForceTubeVRInterface.FTChannelFile>(ForceTubeVRInterface.ListChannels());
             MelonLogger.Msg($"myChannels: {myChannels}");
@@ -73,32 +76,35 @@ namespace ArizonaSunshine2_protube
             MelonLogger.Msg($"{myChannels.channels.other.Count}");
             MelonLogger.Msg("vest");
             MelonLogger.Msg($"{myChannels.channels.vest.Count}");
-            if ((pistol1.Count > 0) && (pistol2.Count > 0))
+            //if ((pistol1.Count > 0) && (pistol2.Count > 0))
+            //{
+                //dualWield = true;
+                //MelonLogger.Msg("Two ProTube devices detected, player is dual wielding.");
+
+            var rifleBolt = myChannels.channels.rifleBolt;
+            var rifleButt = myChannels.channels.rifleButt;
+            if ((readChannel("rifleBolt") == "") || (readChannel("rifleButt") == ""))
             {
-                dualWield = true;
-                MelonLogger.Msg("Two ProTube devices detected, player is dual wielding.");
-                if ((readChannel("rightHand") == "") || (readChannel("leftHand") == ""))
-                {
-                    MelonLogger.Msg("No configuration files found, saving current right and left hand pistols.");
-                    saveChannel("rightHand", pistol1[0].name);
-                    saveChannel("leftHand", pistol2[0].name);
-                }
-                else
-                {
-                    string rightHand = readChannel("rightHand");
-                    string leftHand = readChannel("leftHand");
-                    MelonLogger.Msg("Found and loaded configuration. Right hand: " + rightHand + ", Left hand: " + leftHand);
-                    // Channels 4 and 5 are ForceTubeVRChannel.pistol1 and pistol2
-                    ForceTubeVRInterface.ClearChannel(4);
-                    ForceTubeVRInterface.ClearChannel(5);
-                    ForceTubeVRInterface.AddToChannel(4, rightHand);
-                    ForceTubeVRInterface.AddToChannel(5, leftHand);
-                }
+                MelonLogger.Msg("No configuration files found, saving current rifleBolt and rifleButt.");
+                saveChannel("rifleBolt", rifleBolt[0].name);
+                saveChannel("rifleButt", rifleButt[0].name);
             }
             else
             {
-                MelonLogger.Msg("SINGLE WIELD");
+                string rifleBoltID = readChannel("rifleBolt");
+                string rifleButtId = readChannel("rifleButt");
+                MelonLogger.Msg("Found and loaded configuration. Rifle bolt: " + rifleBoltID + ", Rifle butt: " + rifleButtId);
+                // Channels 2 and 3 are ForceTubeVRChannel.rifleBoltID and rifleButtId
+                ForceTubeVRInterface.ClearChannel(2);
+                ForceTubeVRInterface.ClearChannel(3);
+                ForceTubeVRInterface.AddToChannel(2, rifleBoltID);
+                ForceTubeVRInterface.AddToChannel(3, rifleButtId);
             }
+            //}
+            //else
+            //{
+            //    MelonLogger.Msg("SINGLE WIELD");
+            //}
         }
         private async void InitializeProTube()
         {
@@ -108,12 +114,12 @@ namespace ArizonaSunshine2_protube
             MelonLogger.Msg("ListConnectedForceTube: " + ForceTubeVRInterface.ListConnectedForceTube());
             MelonLogger.Msg("ListChannels: " + ForceTubeVRInterface.ListChannels());
             Thread.Sleep(10000);
-            //dualWieldSort();
+            rifleBoltButtSort();
         }
 
         public enum WeaponType
         {
-            Pistol, Revolver, Tommy, Rifle, Shotgun1Hand, Shotgun2Hand, Undefined,
+            Pistol, Revolver, Tommy, Rifle, M16, Shotgun1Hand, Shotgun2Hand, Undefined,
                 TommyUpgraded // I saw this one at the end of chapter 7, but it dissapeared (bug)
         }
 
@@ -137,37 +143,41 @@ namespace ArizonaSunshine2_protube
                 return;
             }
 
-            if (weaponType == WeaponType.Rifle)
+            switch (weaponType)
             {
-                ForceTubeVRInterface.Shoot(255, 125, 0.1f, ForceTubeVRChannel.rifleButt);
-                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleBolt);
+                case WeaponType.Rifle:
+                case WeaponType.M16:
+                    ForceTubeVRInterface.Shoot(255, 125, 0.1f, ForceTubeVRChannel.rifleBolt);
+                    ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleButt);
+                    break;
+
+                case WeaponType.Tommy:
+                    ForceTubeVRInterface.Shoot(135, 100, 0.1f, ForceTubeVRChannel.rifleBolt);
+                    ForceTubeVRInterface.Kick(180, ForceTubeVRChannel.rifleButt);
+                    break;
+
+                case WeaponType.Pistol:
+                    ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.rifleBolt);
+                    break;
+
+                case WeaponType.Revolver:
+                    ForceTubeVRInterface.Kick(230, ForceTubeVRChannel.rifleBolt);
+                    break;
+
+                case WeaponType.Shotgun1Hand:
+                    ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleBolt);
+                    break;
+
+                case WeaponType.Shotgun2Hand:
+                    ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleBolt);
+                    ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleButt);
+                    break;
+
+                default:
+                    ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.rifleBolt);
+                    break;
             }
-            else if (weaponType == WeaponType.Tommy)
-            {
-                ForceTubeVRInterface.Shoot(135, 100, 0.1f, ForceTubeVRChannel.rifleButt);
-                ForceTubeVRInterface.Kick(180, ForceTubeVRChannel.rifleBolt);
-            }
-            else if (weaponType == WeaponType.Pistol)
-            {
-                ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.rifleButt);
-            }
-            else if (weaponType == WeaponType.Revolver)
-            {
-                ForceTubeVRInterface.Kick(230, ForceTubeVRChannel.rifleButt);
-            }
-            else if (weaponType == WeaponType.Shotgun1Hand)
-            {
-                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleButt);
-            }
-            else if (weaponType == WeaponType.Shotgun2Hand)
-            {
-                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleButt);
-                ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleBolt);
-            }
-            else
-            {
-                ForceTubeVRInterface.Kick(190, ForceTubeVRChannel.rifleButt);
-            }
+
             return;
         }
 
@@ -189,22 +199,76 @@ namespace ArizonaSunshine2_protube
                 //__instance.shootStrategy.firingMode;
                 ////__instance.shootStrategy.fireRate;
                 bool isRightHand = (hand.IsRightHand);
+                float fireRate = __instance.shootStrategy.fireRate;
+                float spreadAngle = __instance.shootStrategy.spreadAngle;
 
                 WeaponType weaponType = WeaponType.Undefined;
-                if (__instance.shootStrategy.fireRate == 10) weaponType = WeaponType.Rifle;
-                else if (__instance.shootStrategy.fireRate == 12) weaponType = WeaponType.Tommy;
-                else if (__instance.shootStrategy.fireRate == 30) weaponType = WeaponType.Pistol;
-                else if (__instance.shootStrategy.fireRate == 5.5f) weaponType = WeaponType.Revolver;
-                else if (__instance.shootStrategy.fireRate == 100)
+                switch (fireRate)
                 {
-                    if (__instance.shootStrategy.spreadAngle == 5f)
+                    case 10:
+                    case 11:
+                        weaponType = WeaponType.Rifle;
+                        break;
+
+                    case 15:
+                        // Watch out, big UZI is the same, but I was using fast firing and shotguns weapon in my left hand
+                        weaponType = WeaponType.M16;
+                        break;
+
+                    case 12:
+                        weaponType = WeaponType.Tommy;
+                        break;
+
+                    case 30:
+                        weaponType = WeaponType.Pistol;
+                        break;
+
+                    case 5.5f:
+                        weaponType = WeaponType.Revolver;
+                        break;
+
+                    case 100 when spreadAngle == 5f:
                         weaponType = WeaponType.Shotgun1Hand;
-                    else if (__instance.shootStrategy.spreadAngle == 2.75f)
+                        break;
+
+                    case 100 when spreadAngle == 2.75f:
                         weaponType = WeaponType.Shotgun2Hand;
+                        break;
                 }
+
 
                 shootProtube(weaponType, isRightHand);
             }
         }
     }
 }
+// UZI
+//[20:31:32.295] fireRate: 15
+//[20:31:32.295] projectilesPerBurst: 3
+//[20:31:32.296] spreadAngle: 0
+//[20:31:32.296] hasSpreadPattern: False
+//[20:31:32.297][ArizonaSunshine2_protube] shootProtube
+//[20:31:32.297][ArizonaSunshine2_protube] Undefined
+// Seems exactly the same as M16
+
+// Minigun
+//[19:15:41.202] fireRate: 25
+//[19:15:41.203] projectilesPerBurst: 3
+//[19:15:41.203] spreadAngle: 0
+//[19:15:41.203] hasSpreadPattern: False
+
+// LMG
+//[16:56:14.082] fireRate: 12
+//[16:56:14.083] projectilesPerBurst: 3
+//[16:56:14.083] spreadAngle: 0
+//[16:56:14.083] hasSpreadPattern: False
+//[16:56:14.084][ArizonaSunshine2_protube] shootProtube
+//[16:56:14.084][ArizonaSunshine2_protube] Tommy
+
+// Grenade launcher
+//[19:34:38.126] fireRate: 1
+//[19:34:38.127] projectilesPerBurst: 3
+//[19:34:38.127] spreadAngle: 20
+//[19:34:38.127] hasSpreadPattern: False
+//[19:34:38.127][ArizonaSunshine2_protube] shootProtube
+//[19:34:38.127][ArizonaSunshine2_protube] Undefined
