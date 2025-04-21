@@ -11,34 +11,36 @@ namespace ArizonaSunshine2_protube
 {
     public class ArizonaSunshine2_protube : MelonMod
     {
-        public static string devicesIDsConfigPath = Directory.GetCurrentDirectory() + "\\Mods\\rifleBoltButtDevices\\";
-        //public static bool dualWield = false;
+        private enum WeaponType
+        {
+            Pistol, Revolver, Tommy, Rifle, M16, Shotgun1Hand, Shotgun2Hand, Undefined,
+            TommyUpgraded, // I saw this one at the end of chapter 7, but it dissapeared (bug)
+            GrenageLauncher
+        }
+
+        private static string devicesIDsConfigPath = Directory.GetCurrentDirectory() + "\\Mods\\rifleBoltButtDevices\\";
         private MelonPreferences_Category config;
-        //public static bool leftHanded = false;
 
         public override void OnApplicationStart()
         {
             config = MelonPreferences.CreateCategory("provolver");
-            config.CreateEntry<bool>("leftHanded", false);
-            config.SetFilePath("Mods/Provolver/Provolver_config.cfg");
-            //leftHanded = bool.Parse(config.GetEntry("leftHanded").GetValueAsString());
             InitializeProTube();
         }
 
-        public static void saveChannel(string channelName, string proTubeName)
+        private static void saveChannel(string channelName, string proTubeName)
         {
             string fileName = devicesIDsConfigPath + channelName + ".pro";
             File.WriteAllText(fileName, proTubeName, Encoding.UTF8);
         }
 
-        public static string readChannel(string channelName)
+        private static string readChannel(string channelName)
         {
             string fileName = devicesIDsConfigPath + channelName + ".pro";
             if (!File.Exists(fileName)) return "";
             return File.ReadAllText(fileName, Encoding.UTF8);
         }
 
-        public static void rifleBoltButtSort()
+        private static void rifleBoltButtSort()
         // For me assigning rifleBolt and rifleButt by ForceTubeVRInterface seemed random,
         // so if when shooting pistol your stock respond then swap contents of "Arizona Sunshine 2\Mods\rifleBoltButtDevices" .pro files
         // Then it should be good as long as the same devices are used
@@ -76,10 +78,6 @@ namespace ArizonaSunshine2_protube
             MelonLogger.Msg($"{myChannels.channels.other.Count}");
             MelonLogger.Msg("vest");
             MelonLogger.Msg($"{myChannels.channels.vest.Count}");
-            //if ((pistol1.Count > 0) && (pistol2.Count > 0))
-            //{
-                //dualWield = true;
-                //MelonLogger.Msg("Two ProTube devices detected, player is dual wielding.");
 
             var rifleBolt = myChannels.channels.rifleBolt;
             var rifleButt = myChannels.channels.rifleButt;
@@ -100,11 +98,6 @@ namespace ArizonaSunshine2_protube
                 ForceTubeVRInterface.AddToChannel(2, rifleBoltID);
                 ForceTubeVRInterface.AddToChannel(3, rifleButtId);
             }
-            //}
-            //else
-            //{
-            //    MelonLogger.Msg("SINGLE WIELD");
-            //}
         }
         private async void InitializeProTube()
         {
@@ -117,32 +110,11 @@ namespace ArizonaSunshine2_protube
             rifleBoltButtSort();
         }
 
-        public enum WeaponType
-        {
-            Pistol, Revolver, Tommy, Rifle, M16, Shotgun1Hand, Shotgun2Hand, Undefined,
-                TommyUpgraded, // I saw this one at the end of chapter 7, but it dissapeared (bug)
-                GrenageLauncher
-        }
 
-        public static void shootProtube(WeaponType weaponType, bool isRightHand)
-        // My gun get's registered as rifleButt, stock as rifleBolt
+        private static void shootProtube(WeaponType weaponType)
         {
             MelonLogger.Msg("shootProtube");
             MelonLogger.Msg(weaponType);
-            //ForceTubeVRChannel channel = ForceTubeVRChannel.pistol1;
-            //if (isRightHand)
-            //{
-            //    channel = (leftHanded && !dualWield) ? ForceTubeVRChannel.pistol2 : ForceTubeVRChannel.pistol1;
-            //}
-            //else
-            //{
-            //    channel = (leftHanded && !dualWield) ? ForceTubeVRChannel.pistol1 : ForceTubeVRChannel.pistol2;
-            //}
-            if (!isRightHand)
-            {
-                MelonLogger.Warning("Firing with left hand is not handled.");
-                return;
-            }
 
             switch (weaponType)
             {
@@ -194,19 +166,24 @@ namespace ArizonaSunshine2_protube
             [HarmonyPostfix]
             public static void Postfix(ProjectileShootStrategyBehaviourData __instance, AZS2Hand hand)
             {
-                //string weapon = "Pistol";
-                //if (__instance.shootStrategy.projectilesPerBurst > 1) weapon = "Shotgun";
-                MelonLogger.Msg("fireRate: " + __instance.shootStrategy.fireRate);
+                if (hand.IsLeftHand)
+                {
+                    MelonLogger.Warning("Firing with left hand is not handled.");
+                    return;
+                }
+                // I found differences between weapons only in those 2 parameters
+                float fireRate = __instance.shootStrategy.fireRate;
+                float spreadAngle = __instance.shootStrategy.spreadAngle;
+
+                MelonLogger.Msg("fireRate: " + fireRate);
+                MelonLogger.Msg("spreadAngle: " + spreadAngle);
                 //MelonLogger.Msg("firingMode: " + __instance.shootStrategy.firingMode);
                 //MelonLogger.Msg("onShootUpdate: " + __instance.shootStrategy.onShootUpdate);
                 MelonLogger.Msg("projectilesPerBurst: " + __instance.shootStrategy.projectilesPerBurst);
-                MelonLogger.Msg("spreadAngle: " + __instance.shootStrategy.spreadAngle);
                 MelonLogger.Msg("hasSpreadPattern: " + __instance.shootStrategy.hasSpreadPattern);
-                //__instance.shootStrategy.firingMode;
-                ////__instance.shootStrategy.fireRate;
-                bool isRightHand = (hand.IsRightHand);
-                float fireRate = __instance.shootStrategy.fireRate;
-                float spreadAngle = __instance.shootStrategy.spreadAngle;
+                MelonLogger.Msg("burstFireCooldownDuration: " + __instance.shootStrategy.burstFireCooldownDuration);
+                MelonLogger.Msg("bulletInChamberCooldownDuration: " + __instance.shootStrategy.bulletInChamberCooldownDuration);
+                MelonLogger.Msg("maxIndividualBulletRandomizedAngle: " + __instance.shootStrategy.maxIndividualBulletRandomizedAngle);
 
                 WeaponType weaponType = WeaponType.Undefined;
                 switch (fireRate)
@@ -246,8 +223,7 @@ namespace ArizonaSunshine2_protube
                         break;
                 }
 
-
-                shootProtube(weaponType, isRightHand);
+                shootProtube(weaponType);
             }
         }
     }
