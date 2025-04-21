@@ -120,7 +120,8 @@ namespace ArizonaSunshine2_protube
         public enum WeaponType
         {
             Pistol, Revolver, Tommy, Rifle, M16, Shotgun1Hand, Shotgun2Hand, Undefined,
-                TommyUpgraded // I saw this one at the end of chapter 7, but it dissapeared (bug)
+                TommyUpgraded, // I saw this one at the end of chapter 7, but it dissapeared (bug)
+                GrenageLauncher
         }
 
         public static void shootProtube(WeaponType weaponType, bool isRightHand)
@@ -170,6 +171,11 @@ namespace ArizonaSunshine2_protube
 
                 case WeaponType.Shotgun2Hand:
                     ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleBolt);
+                    ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleButt);
+                    break;
+
+                case WeaponType.GrenageLauncher:
+                    ForceTubeVRInterface.Rumble(200, 0.2f, ForceTubeVRChannel.rifleBolt);
                     ForceTubeVRInterface.Kick(255, ForceTubeVRChannel.rifleButt);
                     break;
 
@@ -233,6 +239,10 @@ namespace ArizonaSunshine2_protube
 
                     case 100 when spreadAngle == 2.75f:
                         weaponType = WeaponType.Shotgun2Hand;
+                        break;
+
+                    case 1 when spreadAngle == 20:
+                        weaponType = WeaponType.GrenageLauncher;
                         break;
                 }
 
