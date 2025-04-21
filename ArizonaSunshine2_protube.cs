@@ -18,29 +18,29 @@ namespace ArizonaSunshine2_protube
             GrenageLauncher
         }
 
-        private static string devicesIDsConfigPath = Directory.GetCurrentDirectory() + "\\Mods\\rifleBoltButtDevices\\";
+        private static readonly string devicesIDsConfigPath = Directory.GetCurrentDirectory() + "\\Mods\\rifleBoltButtDevices\\";
         //private MelonPreferences_Category config;
 
-        public override void OnApplicationStart()
+        public override void OnInitializeMelon()
         {
             //config = MelonPreferences.CreateCategory("provolver");
             InitializeProTube();
         }
 
-        private static void saveChannel(string channelName, string proTubeName)
+        private static void SaveChannel(string channelName, string proTubeName)
         {
             string fileName = devicesIDsConfigPath + channelName + ".pro";
             File.WriteAllText(fileName, proTubeName, Encoding.UTF8);
         }
 
-        private static string readChannel(string channelName)
+        private static string ReadChannel(string channelName)
         {
             string fileName = devicesIDsConfigPath + channelName + ".pro";
             if (!File.Exists(fileName)) return "";
             return File.ReadAllText(fileName, Encoding.UTF8);
         }
 
-        private static void rifleBoltButtSort()
+        private static void RifleBoltButtSort()
         // For me assigning rifleBolt and rifleButt by ForceTubeVRInterface seemed random,
         // so if when shooting pistol your stock respond then swap contents of "Arizona Sunshine 2\Mods\rifleBoltButtDevices" .pro files
         // Then it should be good as long as the same devices are used
@@ -49,15 +49,15 @@ namespace ArizonaSunshine2_protube
             MelonLogger.Msg($"myChannels: {myChannels}");
             if (myChannels == null)
             {
-                MelonLogger.LogWarning("myChannels is null!");
+                MelonLogger.Warning("myChannels is null!");
             }
             if (myChannels.channels == null)
             {
-                MelonLogger.LogWarning("myChannels.channels is null!");
+                MelonLogger.Warning("myChannels.channels is null!");
             }
             if (myChannels.channels.pistol1 == null)
             {
-                MelonLogger.LogWarning("myChannels.channels.pistol1 is null!");
+                MelonLogger.Warning("myChannels.channels.pistol1 is null!");
             }
             MelonLogger.Msg($"myChannels.channels: {myChannels.channels}");
 
@@ -81,25 +81,25 @@ namespace ArizonaSunshine2_protube
 
             var rifleBolt = myChannels.channels.rifleBolt;
             var rifleButt = myChannels.channels.rifleButt;
-            if ((readChannel("rifleBolt") == "") || (readChannel("rifleButt") == ""))
+            if ((ReadChannel("rifleBolt") == "") || (ReadChannel("rifleButt") == ""))
             {
                 MelonLogger.Msg("No configuration files found, saving current rifleBolt and rifleButt.");
-                saveChannel("rifleBolt", rifleBolt[0].name);
-                saveChannel("rifleButt", rifleButt[0].name);
+                SaveChannel("rifleBolt", rifleBolt[0].name);
+                SaveChannel("rifleButt", rifleButt[0].name);
             }
             else
             {
-                string rifleBoltID = readChannel("rifleBolt");
-                string rifleButtId = readChannel("rifleButt");
+                string rifleBoltID = ReadChannel("rifleBolt");
+                string rifleButtId = ReadChannel("rifleButt");
                 MelonLogger.Msg("Found and loaded configuration. Rifle bolt: " + rifleBoltID + ", Rifle butt: " + rifleButtId);
-                // Channels 2 and 3 are ForceTubeVRChannel.rifleBoltID and rifleButtId
+                // Channels 2 and 3 are ForceTubeVRChannel.rifleBolt and rifleButt
                 ForceTubeVRInterface.ClearChannel(2);
                 ForceTubeVRInterface.ClearChannel(3);
                 ForceTubeVRInterface.AddToChannel(2, rifleBoltID);
                 ForceTubeVRInterface.AddToChannel(3, rifleButtId);
             }
         }
-        private async void InitializeProTube()
+        private static async void InitializeProTube()
         {
             MelonLogger.Msg("Initializing ProTube gear...");
             await ForceTubeVRInterface.InitAsync(pistolsFirst: false);
@@ -107,11 +107,11 @@ namespace ArizonaSunshine2_protube
             MelonLogger.Msg("ListConnectedForceTube: " + ForceTubeVRInterface.ListConnectedForceTube());
             MelonLogger.Msg("ListChannels: " + ForceTubeVRInterface.ListChannels());
             Thread.Sleep(10000);
-            rifleBoltButtSort();
+            RifleBoltButtSort();
         }
 
 
-        private static void shootProtube(WeaponType weaponType)
+        private static void ShootProtube(WeaponType weaponType)
         // Set reactions to my feeling, I was using weaker basic ProVolver and ForceTube (there are stronger versions),
         // so I prefered stronger responses
         // Only guide I found is this: https://github.com/ProTubeVR/ForceTubeVR-Unreal-Engine-Plugin?tab=readme-ov-file#weapons-settings
@@ -225,7 +225,7 @@ namespace ArizonaSunshine2_protube
                         break;
                 }
 
-                shootProtube(weaponType);
+                ShootProtube(weaponType);
             }
         }
     }
