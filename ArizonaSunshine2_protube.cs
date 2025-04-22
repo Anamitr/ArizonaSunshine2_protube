@@ -63,9 +63,7 @@ namespace ArizonaSunshine2_protube
             MelonLogger.Msg($"myChannels.channels: {myChannels.channels}");
 
             var pistol1 = myChannels.channels.pistol1;
-            MelonLogger.Msg("Bazinga 2");
             var pistol2 = myChannels.channels.pistol2;
-            MelonLogger.Msg("Bazinga 3");
             MelonLogger.Msg($"{myChannels.channels.ToString()}");
             MelonLogger.Msg("rifleButt");
             MelonLogger.Msg($"{myChannels.channels.rifleButt.Count}");
