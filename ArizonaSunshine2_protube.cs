@@ -19,11 +19,9 @@ namespace ArizonaSunshine2_protube
         }
 
         private static readonly string devicesIDsConfigPath = Directory.GetCurrentDirectory() + "\\Mods\\rifleBoltButtDevices\\";
-        //private MelonPreferences_Category config;
 
         public override void OnInitializeMelon()
         {
-            //config = MelonPreferences.CreateCategory("provolver");
             InitializeProTube();
         }
 
