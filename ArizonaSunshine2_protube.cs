@@ -29,6 +29,7 @@ namespace ArizonaSunshine2_protube
 
         private static void SaveChannel(string channelName, string proTubeName)
         {
+            System.IO.Directory.CreateDirectory(devicesIDsConfigPath);
             string fileName = devicesIDsConfigPath + channelName + ".pro";
             File.WriteAllText(fileName, proTubeName, Encoding.UTF8);
         }
@@ -42,8 +43,8 @@ namespace ArizonaSunshine2_protube
 
         private static void RifleBoltButtSort()
         // For me assigning rifleBolt and rifleButt by ForceTubeVRInterface seemed random,
-        // so if when shooting pistol your stock respond then swap contents of "Arizona Sunshine 2\Mods\rifleBoltButtDevices" .pro files
-        // Then it should be good as long as the same devices are used
+        // so if when shooting pistol your stock respond then swap contents of "Arizona Sunshine 2\Mods\rifleBoltButtDevices" .pro files.
+        // Then it should be good as long as the same devices are used.
         {
             ForceTubeVRInterface.FTChannelFile myChannels = JsonConvert.DeserializeObject<ForceTubeVRInterface.FTChannelFile>(ForceTubeVRInterface.ListChannels());
             MelonLogger.Msg($"myChannels: {myChannels}");
