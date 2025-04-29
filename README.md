@@ -1,3 +1,15 @@
+# Gun + stock handling
+
+This is fork of the original mod, which adds handling of ForceTube stock along with Provolver.
+To download go to Releases on this GitHub page.
+To install follow the instruction from original Readme placed below.
+
+Note - devices aren't registered by type due to ForceTubeVR API limitations, they get assigned randomly.
+So if when shooting in-game pistol your stock responds then swap contents of "Arizona Sunshine 2\Mods\rifleBoltButtDevices" .pro files.
+After that it should be good as long as the same devices are used.
+
+
+
 # ArizonaSunshine2_protube
 <img src="https://cdn.akamai.steamstatic.com/steam/apps/1540210/header.jpg">
 
